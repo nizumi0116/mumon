@@ -45,14 +45,17 @@ for i in range(data_over, data_test//2):
     result_angle_test[i] = result_angle_test[data_over-1]
 result_angle_test_min = result_angle_test[data_over-1]
 
-run_array = [79, 80, 81]
+run_array = [51, 52, 54, 56]
 
 path_in = f'rawdata/fourier/input_40mhz.txt'
 path_out = f'rawdata/fourier/output_40mhz.txt'
 path_in_test = f'rawdata/input_60ns_15ns.txt'
 path_out_test = f'rawdata/output_60ns_15ns.txt'
 for run in run_array:
-    path_test = f'rawdata/run_000{run}/run000{run}_ch0.txt'
+    if run == 83:
+        path_test = f'rawdata/run_000{run}/run000{run}_ch1.txt'
+    else:
+        path_test = f'rawdata/run_000{run}/run000{run}_ch0.txt'
 
     #move baseline
     l_in = np.loadtxt(path_in)
@@ -62,9 +65,9 @@ for run in run_array:
     l_in = l_in - in_ave
     
     l_test = np.loadtxt(path_test)
-    if run is 73 or run is 76 or run == 79 or run == 83 or run == 82:
+    if run == 73 or run == 76 or run == 79 or run == 83 or run == 82:
         l_test = l_test * 2.51
-    if run == 81:
+    if run == 51 or run == 52 or run == 54 or run == 81:
         l_test = l_test/10
     l_test = l_test.reshape(-1, data_test+2)
     l_test = l_test[:, 2:]
