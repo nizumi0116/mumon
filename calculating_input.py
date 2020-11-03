@@ -44,10 +44,8 @@ for run in run_array:
         path_test = f'rawdata/run_000{run}/run000{run}_ch0.txt'
     
     l_test = np.loadtxt(path_test)
-    if run == 73 or run == 76 or run == 79 or run == 83 or run == 82:
-        l_test = l_test * 2.51
-    if run == 50 or run == 51 or run == 52 or run == 54 or run == 59 or run == 66 or run == 69 or run == 72 or run == 74 or run == 75 or run == 77 or run == 78 or run == 81:
-        l_test = l_test/10
+    #l_test = l_test * 2.51
+    #l_test = l_test/10
     l_test = l_test.reshape(-1, data_test+2)
     l_test = l_test[:, 2:]
     
