@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
   vector<int> runnum;
 
   if (argc == 1){
-    cout << "Error! Put the run numbers.";
+    cout << "Error! Put the run numbers.\n";
     return 0;
   }
   
