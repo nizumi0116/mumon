@@ -115,7 +115,8 @@ int main(int argc, char *argv[]){
       
       //input filename
       TString filename[nch];
-      for(int ich = 0; ich < nch; ich++){
+      filename[0] = Form("./rawdata/run_000%d/run000%d_ch0.dat", irun, irun);
+      for(int ich = 1; ich < nch; ich++){
 	filename[ich] = Form("./rawdata/run_000%d/run000%d_ch%i.txt", irun, irun, ich);
       }
 
