@@ -141,8 +141,10 @@ int main(int argc, char *argv[]){
 	    
 	    TH1D* pedeHist = new TH1D(Form("h_ch%d_%d", ich, num[ich]), "pedestal", range, 0, range);
 
-	    for(int i = 0; i < 2; i++){
-	      fin[ich] >> dummy;
+	    if(ich != 0){
+	      for(int i = 0; i < 2; i++){
+		fin[ich] >> dummy;
+	      }
 	    }
 	    
 	    for(int i = 0; i < startbin; i++){
