@@ -80,6 +80,8 @@ int main(int argc, char *argv[]){
   int type; // 0: low, 1: high 
   int runnum;
   int low_entry = 0;
+  int run_start = 0;
+  int run_stop = 0;
   
   for( unsigned int ifile = 0; ifile < low_runv.size() + high_runv.size() -2; ifile++){
 
@@ -106,6 +108,12 @@ int main(int argc, char *argv[]){
     }
 
     cout << "analyze run " << runnum << "\n"; 
+    if( ifile == 0 ){
+      run_start = runnum;
+    }
+    if( ifile == low_runv.size() + high_runv.size() -2 ){
+      run_stop = runnum;
+    }
     
     filename = Form("./process/run_%05d/run_%05d.root", runnum, runnum);
     
@@ -211,7 +219,20 @@ int main(int argc, char *argv[]){
     l1.DrawLine(switching[i], 0, switching[i], ratio_max);
   }
 
-  app.Run();
+  //app.Run();
+
+  TFile ofn(Form("history_%dto%d.root", run_start, run_stop), "RECREATE");
+  ofn.cd();;
+  for(int i = 0; i < 4; i++){
+    history_plot_emt[i] -> Write();
+  }
+  for(int i = 0; i < 2; i++){
+    history_plot_si[i] -> Write();
+  }
+  ofn.Close();
+
+  cout << "\n... Done!!\n";
+  
   return 0;
   
 }
