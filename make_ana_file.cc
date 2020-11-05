@@ -19,14 +19,15 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 
-  int run = 0;
-  int channel = 0;
-  int type = 0;
+  int run = -1;
+  int channel = -1;
+  int type = -1;
+  int daqid = -1;
 
-  int d = -1;
-  while((d = getopt(argc, argv, "r:c:t:")) != -1)
+  int p = -1;
+  while((p = getopt(argc, argv, "r:c:t:d:")) != -1)
     {
-      switch(d){
+      switch(p){
       case 'r':
 	run = atoi(optarg);
 	break;
@@ -36,15 +37,19 @@ int main(int argc, char *argv[]){
       case 't':
 	type = atoi(optarg);
 	break;
+      case 'd':
+	daqid = atoi(optarg);
+	break;
       }
     }
 
-  if(run==0)
+  if(run == -1 || channel == -1 || type == -1 || daqid == -1)
     {
       cout << "!!! usage !!!" << '\n';
       cout << "-r : input a run number" << '\n';
       cout << "-c : input a channel number" << "\n";
       cout << "-t : CT, EMT = 0, Si = 1" << "\n";
+      cout << "-d : input a ID for daqpc (1, 2, 3)" << "\n";
       exit(0);
     }
   
