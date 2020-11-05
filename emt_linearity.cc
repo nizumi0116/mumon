@@ -46,7 +46,7 @@ int main(int argc, char *argv[]){
   const int nfile = filelist.size();
   TH2D *linearity_plot[nfile];
   TH2D *linearity_si[nfile];
-  TH2D *linearity_total = new TH2D("linearity_total", "; CT (integral); EMT (integral)", ct_range, 0, ct_range, 1000, 0, 100000);
+  TH2D *linearity_total = new TH2D("linearity_total", "; input (integral); EMT (integral)", ct_range, 0, ct_range, 1000, 0, 100000);
   TH2D *linearity_total_si = new TH2D("linearity_total_si", "; Si (integral); EMT (integral)", si_range, 0, si_range, 1000, 0, 100000);
   TLegend *leg0 = new TLegend(0.7, 0.5, 0.9, 0.6);
   TLegend *leg1 = new TLegend(0.7, 0.5, 0.9, 0.6);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
   cout << "total number of files = " << nfile << "\n";
   
   for(int ifile = 0; ifile < nfile; ifile++){
-    linearity_plot[ifile] = new TH2D(Form("linearity_plot_%d", ifile), "; CT (integral); EMT (integral)", ct_range, 0, ct_range, 1000, 0, 100000);
+    linearity_plot[ifile] = new TH2D(Form("linearity_plot_%d", ifile), "; input (integral); EMT (integral)", ct_range, 0, ct_range, 1000, 0, 100000);
     linearity_si[ifile] = new TH2D(Form("linearity_si_%d", ifile), "; Si (integral); EMT (integral)", si_range, 0, si_range, 1000, 0, 100000);
     linearity_plot[ifile] -> SetMarkerStyle(8);
     linearity_plot[ifile] -> SetMarkerSize(0.5);
@@ -81,9 +81,9 @@ int main(int argc, char *argv[]){
 
       //if(peak_bin > 680 && peak_bin < 700){ //if necessary
       linearity_plot[ifile] -> Fill(integral[0], integral[2]);
-      linearity_si[ifile] -> Fill(integral[0], integral[2]);
+      linearity_si[ifile] -> Fill(integral[1], integral[2]);
       linearity_total -> Fill(integral[0], integral[2]);
-      linearity_total_si -> Fill(integral[0], integral[2]);
+      linearity_total_si -> Fill(integral[1], integral[2]);
       //}
     }
     
@@ -138,11 +138,12 @@ int main(int argc, char *argv[]){
   c1->Update();
   c2->Update();
   c3->Update();
-  //app.Run();
 
   ofn.Close();
 
   cout << "\n... Done!!\n";
+
+  app.Run();
   
-  return 0;
+  //return 0;
 }
