@@ -20,8 +20,8 @@ int main(int argc, char *argv[]){
   //////////////////////////
   double efficiency = 0.83; //EMT
 
-  TString high_run = "./high_intensity.dat";
-  TString low_run = "./low_intensity.dat";
+  TString high_run = "./high_intensity_si.dat";
+  TString low_run = "./low_intensity_si.dat";
 
   ifstream fin[2];
   fin[0].open(high_run);
@@ -43,25 +43,23 @@ int main(int argc, char *argv[]){
   }
   low_runv.push_back(-1);
 
+  cout << "low " << low_runv.size() << "\n";
+  cout << "high " << high_runv.size() << "\n";
   cout << "total number of files = " << low_runv.size() + high_runv.size() -2 << "\n";
   
-  double ratio_max = 200; // EMT/CT
-  double ratio_max_si = 5; // EMT/Si
+  double ratio_max = 200; // Si/CT
+  double ratio_max_si = 2; // Si/ref. Si
 
   int days_max = 500;
 
-  TH2D *history_plot_emt[4];
-  //history_plot_emt[4] = new TH2D("history_plot_emt4", "; amount of irradiation [# of e / 10^11]; EMT/input (integral)", 2000, 0, 200, 1000, 0, ratio_max);
-  history_plot_emt[0] = new TH2D("history_plot_emt0", "; entries; EMT/input (integral)", 500, 0, 5000, 1000, 0, ratio_max);
-  history_plot_emt[1] = new TH2D("history_plot_emt1", "; amount of irradiation [days in J-PARC @500 kW]; EMT/input (integral)", 1500, 0, days_max, 1000, 0, ratio_max);
-  history_plot_emt[2] = new TH2D("history_plot_emt2", "; entries; EMT/Si (integral)", 500, 0, 5000, 1000, 0, ratio_max_si);
-  history_plot_emt[3] = new TH2D("history_plot_emt3", "; amount of irradiation [days in J-PARC @500 kW]; EMT/Si (integral)", 1500, 0, days_max, 1000, 0, ratio_max_si);
-  TH2D *history_plot_si[2];
-  //history_plot_si[4] = new TH2D("history_plot_si2", "; amount of irradiation [# of e / 10^11]; EMT/Si (integral)", 2000, 0, 200, 1000, 0, ratio_max_si);
-  history_plot_si[0] = new TH2D("history_plot_si0", "; entries; Si/input (integral)", 500, 0, 5000, 1000, 0, ratio_max);
-  history_plot_si[1] = new TH2D("history_plot_si1", "; amount of irradiation [days in J-PARC @500 kW]; Si/input (integral)", 1500, 0, days_max, 1000, 0, ratio_max);
+  TH2D *history_plot[4];
+  //history_plot[4] = new TH2D("history_plot4", "; amount of irradiation [# of e / 10^11]; EMT/CT (integral)", 2000, 0, 200, 1000, 0, ratio_max);
+  history_plot[0] = new TH2D("history_plot0", "; entries; Si/input (integral)", 500, 0, 5000, 1000, 0, ratio_max);
+  history_plot[1] = new TH2D("history_plot1", "; amount of irradiation [days in J-PARC @500 kW]; Si/input (integral)", 1500, 0, days_max, 1000, 0, ratio_max);
+  history_plot[2] = new TH2D("history_plot2", "; entries; Si/ref. Si (integral)", 500, 0, 5000, 1000, 0, ratio_max_si);
+  history_plot[3] = new TH2D("history_plot3", "; amount of irradiation [days in J-PARC @500 kW]; Si/ref. Si (integral)", 1500, 0, days_max, 1000, 0, ratio_max_si);
   
-  TH1D *h0_emt[2], *h0_si;
+  TH1D *h0[2];
   TLine l1;
 
   const int nch = 3;
@@ -84,7 +82,7 @@ int main(int argc, char *argv[]){
   int run_stop = 0;
   
   for( unsigned int ifile = 0; ifile < low_runv.size() + high_runv.size() -2; ifile++){
-    
+
     if( low_runv[low] == -1 ){
       runnum = high_runv[high];
       type = 1;
@@ -124,9 +122,8 @@ int main(int argc, char *argv[]){
     inputtree -> SetBranchAddress("integral", integral);
 
     if(type == 0){
-      h0_emt[0] = new TH1D("emt/ct", "; EMT/CT", 1000, 0, ratio_max);
-      h0_emt[1] = new TH1D("emt/si", "; EMT/Si", 1000, 0, ratio_max_si);
-      h0_si = new TH1D("si/ct", "; Si/CT", 1000, 0, ratio_max);
+      h0[0] = new TH1D("si/ct", "; Si/CT", 1000, 0, ratio_max);
+      h0[1] = new TH1D("si/ref. si", "; Si/ref. Si", 1000, 0, ratio_max_si);
     }
     
     nentry = inputtree -> GetEntries();
@@ -137,15 +134,13 @@ int main(int argc, char *argv[]){
       days = irradiation * pow(10, 11) * efficiency / (2.8 * pow(10, 7) / 2.48 * 60 * 60 * 24);
 
       if(type == 0){
-	h0_emt[0] -> Fill(integral[2]/integral[0]);
-	h0_si -> Fill(integral[1]/integral[0]);
-	//history_plot_emt[4] -> Fill(irradiation, integral[2]/integral[0]);
-	history_plot_emt[0] -> Fill(low_entry, integral[2]/integral[0]);
-	history_plot_si[0] -> Fill(low_entry, integral[1]/integral[0]);
+	h0[0] -> Fill(integral[1]/integral[0]);
+	//history_plot[4] -> Fill(irradiation, integral[2]/integral[0]);
+	history_plot[0] -> Fill(low_entry, integral[1]/integral[0]);
 
-	h0_emt[1] -> Fill(integral[2]/integral[1]);
-	//history_plot_si[2] -> Fill(irradiation, integral[2]/integral[1]);
-	history_plot_emt[2] -> Fill(low_entry, integral[2]/integral[1]);
+	h0[1] -> Fill(integral[1]/integral[2]);
+	//history_plot[2] -> Fill(irradiation, integral[2]/integral[1]);
+	history_plot[2] -> Fill(low_entry, integral[1]/integral[2]);
 	low_entry++;
       }
     } // loop over entries
@@ -156,77 +151,58 @@ int main(int argc, char *argv[]){
     }
 
     if(type == 0){
-      history_plot_emt[1] -> Fill(days, h0_emt[0]->GetMean());
-      history_plot_si[1] -> Fill(days, h0_si->GetMean());
-      history_plot_emt[3] -> Fill(days, h0_emt[1]->GetMean());
+      history_plot[1] -> Fill(days, h0[0]->GetMean());
+      history_plot[3] -> Fill(days, h0[1]->GetMean());
 
       switching_low.push_back(low_entry);
     }
 
-    //delete *h0_emt;
-    //delete h0_si;
+    //delete *h0;
     
   } // loop over files
 
   TApplication app("app", 0, 0, 0, 0);
 
   TCanvas *c0 = new TCanvas("c0", "c0", 1000, 600);
-  c0 -> Divide(3, 2);
+  c0 -> Divide(2, 2);
   c0 -> cd(1);
-  //history_plot_emt[4] -> Draw("colz");
-  history_plot_emt[1] -> SetMarkerStyle(4);
-  history_plot_emt[1] -> Draw("P");
+  //history_plot[4] -> Draw("colz");
+  history_plot[1] -> SetMarkerStyle(4);
+  history_plot[1] -> Draw("P");
   for (unsigned int i = 0; i < switching.size(); i++){
     l1.DrawLine(switching[i], 0, switching[i], ratio_max);
   }
   
   c0 -> cd(2);
-  //history_plot_emt[0] -> Draw("colz");
-  history_plot_emt[3] -> SetMarkerStyle(4);
-  history_plot_emt[3] -> Draw("P");
+  //history_plot[0] -> Draw("colz");
+  history_plot[3] -> SetMarkerStyle(4);
+  history_plot[3] -> Draw("P");
   for (unsigned int i = 0; i < switching.size(); i++){
     l1.DrawLine(switching[i], 0, switching[i], ratio_max_si);
   }  
 
-  c0 -> cd(4);
-  history_plot_emt[0] -> Draw("colz");
+  c0 -> cd(3);
+  history_plot[0] -> Draw("colz");
   for (unsigned int i = 0; i < switching_low.size(); i++){
     l1.DrawLine(switching_low[i], 0, switching_low[i], ratio_max);
   }
   
-  c0 -> cd(5);
-  history_plot_emt[2] -> Draw("colz");
+  c0 -> cd(4);
+  history_plot[2] -> Draw("colz");
   for (unsigned int i = 0; i < switching_low.size(); i++){
     l1.DrawLine(switching_low[i], 0, switching_low[i], ratio_max_si);
   }
-
-  c0 -> cd(6);
-  history_plot_si[0] -> Draw("colz");
-  for (unsigned int i = 0; i < switching_low.size(); i++){
-    l1.DrawLine(switching_low[i], 0, switching_low[i], ratio_max);
-  }
-
-  c0 -> cd(3);
-  //history_plot_emt[4] -> Draw("colz");
-  history_plot_si[1] -> SetMarkerStyle(4);
-  history_plot_si[1] -> Draw("P");
-  for (unsigned int i = 0; i < switching.size(); i++){
-    l1.DrawLine(switching[i], 0, switching[i], ratio_max);
-  }
+ 
+  app.Run();
 
   TFile ofn(Form("history_%dto%d.root", run_start, run_stop), "RECREATE");
   ofn.cd();;
   for(int i = 0; i < 4; i++){
-    history_plot_emt[i] -> Write();
-  }
-  for(int i = 0; i < 2; i++){
-    history_plot_si[i] -> Write();
+    history_plot[i] -> Write();
   }
   ofn.Close();
 
   cout << "\n... Done!!\n";
-
-  app.Run();
   
   return 0;
   
