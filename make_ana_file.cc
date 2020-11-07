@@ -48,7 +48,7 @@ int main(int argc, char *argv[]){
       cout << "!!! usage !!!" << '\n';
       cout << "-r : input a run number" << '\n';
       cout << "-c : input a channel number" << "\n";
-      cout << "-t : CT, EMT = 0, Si = 1" << "\n";
+      cout << "-t : CT = 0, Si = 1, EMT = 2" << "\n";
       cout << "-d : input a ID for daqpc (1, 2, 3)" << "\n";
       exit(0);
     }
@@ -126,9 +126,11 @@ int main(int argc, char *argv[]){
       double max = 0;
       
       TH1D* pedeHist = new TH1D(Form("h_%d", num), "pedestal", range, 0, range); 
-      
-      for(int i = 0; i < 2; i++){
-	fin >> dummy;
+
+      if(type == 1 || type == 2){
+	for(int i = 0; i < 2; i++){
+	  fin >> dummy;
+	}
       }
             
 
@@ -142,24 +144,18 @@ int main(int argc, char *argv[]){
 	
 	array[i] = value;
 
-	if(type == 0 && value < min){
+	if(type == 0  || type == 2){
+	  if(value < min){
 	    min = value;
 	    peak_bin = i;
 	  }
+	}
 	         	   
 	if(type == 1 && value > max){
 	  max = value;
 	  peak_bin = i;	  
 	}
       }
-
-      /*
-      for(int i = endbin; i < pedbin; i++){
-	fin >> dummy;
-	array[i] = dummy;
-      }
-      */
-
       
       for(int i = pedbin; i < data; i++){
 	fin >> value;
@@ -184,7 +180,7 @@ int main(int argc, char *argv[]){
       
       if(pedcheck(pedestal))
 	{
-	  if(type == 0){
+	  if(type == 0 || type == 2){
 	    peak = abs(min - pedestal);
 	  }
 	  if(type == 1){
@@ -205,8 +201,10 @@ int main(int argc, char *argv[]){
       
       for(int i = peak_bin; i > startbin; i = i - 1){
 	sum_start = i;
-	if(type == 0 && array[i] - pedestal > -peak*0.1){
-	  break;
+	if(type == 0 || type == 2){
+	  if(array[i] - pedestal > -peak*0.1){
+	    break;
+	  }
 	}
 	if(type == 1 && array[i] - pedestal < peak*0.1){
 	  break;
@@ -215,8 +213,10 @@ int main(int argc, char *argv[]){
 
       for(int i = peak_bin; i < endbin; i++){
 	sum_stop = i;
-	if(type == 0 && array[i] - pedestal > -peak*0.1){
-	  break;
+	if(type == 0 || type == 2){
+	  if(array[i] - pedestal > -peak*0.1){
+	    break;
+	  }
 	}
 	if(type == 1 && array[i] - pedestal < peak*0.1){
 	  break;
@@ -231,9 +231,11 @@ int main(int argc, char *argv[]){
 	array[i] = array[i] - pedestal;
 	
 	if(i > sum_start-11 && i <  sum_stop+11){
-	  if(type == 0 && array[i] < 0){
-	    charge = charge + abs(array[i]);
-	    sum[i] = sum[i-1] + abs(array[i]);
+	  if(type == 0 || type == 2){
+	    if(array[i] < 0){
+	      charge = charge + abs(array[i]);
+	      sum[i] = sum[i-1] + abs(array[i]);
+	    }
 	  }
 	 
 	  if(type == 1 && array[i] > 0){
