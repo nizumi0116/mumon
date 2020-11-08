@@ -19,32 +19,47 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 
+  const int nch = 3;
+  
   int runstart = -1;
   int runend = -1;
   int daqid = -1;
+  int chnum[nch] = {-1, -1, -1};
 
   int c = -1;
-  while((c = getopt(argc, argv, "s:e:d:")) != -1)
+  while((c = getopt(argc, argv, "s:e:d:x:y:z:")) != -1)
     {
       switch(c){
       case 's':
 	runstart = atoi(optarg);
 	break;
+      case 'x':
+	chnum[0] = atoi(optarg);
+	break;
       case 'e':
 	runend = atoi(optarg);
+	break;
+      case 'y':
+	chnum[1] = atoi(optarg);
 	break;
       case 'd':
 	daqid = atoi(optarg);
 	break;
+      case 'z':
+	chnum[2] = atoi(optarg);
+	break;
       }
     }
-
-  if(daqid==-1 || runstart==-1 || runend==-1)
+      
+  if(argc == 1)
     {
       cout << "!!! usage !!!" << '\n';
       cout << "-s : input a start run number" << '\n';
       cout << "-e : input a end run number" << '\n';
       cout << "-d : input a ID for daqpc (1, 2, 3)" << '\n';
+      cout << "-x: CT channel number" << '\n';
+      cout << "-y: Si channel number" << '\n';
+      cout << "-z: ref Si channel number" << '\n';
       exit(0);
     }
 
@@ -53,7 +68,6 @@ int main(int argc, char *argv[]){
   int endbin = 1400;
   
   const int data = 2050; //number of samples
-  const int nch = 3;
   const int max = 2050;
   const int range = 17000;
 
@@ -115,9 +129,9 @@ int main(int argc, char *argv[]){
       
       //input filename
       TString filename[nch];
-      filename[0] = Form("./process/run_000%d/run000%d_ch0.dat", irun, irun);
+      filename[0] = Form("./process/run_000%d/run000%d_ch%d.dat", irun, irun, chnum[0]);
       for(int ich = 1; ich < nch; ich++){
-	filename[ich] = Form("./rawdata/run_000%d/run000%d_ch%i.txt", irun, irun, ich);
+	filename[ich] = Form("./rawdata/run_000%d/run000%d_ch%i.txt", irun, irun, chnum[ich]);
       }
 
       ifstream fin[nch];      
