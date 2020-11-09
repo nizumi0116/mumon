@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
   double factor[nch] = {-1., -1., -1.};
 
   int c = -1;
-  while((c = getopt(argc, argv, "s:e:d:a:b:c:x:y:z:")) != -1)
+  while((c = getopt(argc, argv, "s:e:d:b:c:x:y:z:")) != -1)
     {
       switch(c){
       case 's':
@@ -36,9 +36,6 @@ int main(int argc, char *argv[]){
 	break;
       case 'x':
 	chnum[0] = atoi(optarg);
-	break;
-      case 'a':
-	factor[0] = (double) atof(optarg);
 	break;
       case 'e':
 	runend = atoi(optarg);
@@ -70,7 +67,6 @@ int main(int argc, char *argv[]){
       cout << "-x: CT channel number" << '\n';
       cout << "-y: Si channel number" << '\n';
       cout << "-z: ref Si channel number" << '\n';
-      cout << "-a: CT factor" << '\n';
       cout << "-b: Si factor" << '\n';
       cout << "-c: EMT factor" << '\n';
       exit(0);
