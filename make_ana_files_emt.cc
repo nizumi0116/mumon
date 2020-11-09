@@ -24,8 +24,8 @@ int main(int argc, char *argv[]){
   int runstart = -1;
   int runend = -1;
   int daqid = -1;
-  int chnum[nch] = {-1, -1, -1};
-  double factor[nch] = {-1., -1., -1.};
+  int chnum[nch] = {0, -1, -1};
+  double factor[nch] = {1, -1., -1.};
 
   int c = -1;
   while((c = getopt(argc, argv, "s:e:d:b:c:y:z:")) != -1)
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]){
       cout << "-e : input a end run number" << '\n';
       cout << "-d : input a ID for daqpc (1, 2, 3)" << '\n';
       cout << "-y: Si channel number" << '\n';
-      cout << "-z: ref Si channel number" << '\n';
+      cout << "-z: EMT channel number" << '\n';
       cout << "-b: Si factor" << '\n';
       cout << "-c: EMT factor" << '\n';
       exit(0);

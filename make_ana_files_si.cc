@@ -24,8 +24,8 @@ int main(int argc, char *argv[]){
   int runstart = -1;
   int runend = -1;
   int daqid = -1;
-  int chnum[nch] = {-1, -1, -1};
-  double factor[nch] = {-1., -1., -1.};
+  int chnum[nch] = {0, -1, -1};
+  double factor[nch] = {1, -1., -1.};
 
   int c = -1;
   while((c = getopt(argc, argv, "s:e:d:b:c:y:z:")) != -1)
