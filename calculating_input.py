@@ -1,7 +1,35 @@
 import numpy as np
+import sys
 from scipy.fftpack import fft, ifft, fftfreq
 from scipy import interpolate
 from matplotlib import pyplot as plt
+
+argv = sys.argv
+argc = len(argv)
+
+if argc == 1:
+    print("enter run number!!")
+    sys.exit()
+    
+run_array = []
+
+dummy = 0
+for arg in argv:
+    if dummy == 0:
+        dummy = dummy + 1
+        continue
+    run_array.append( int(arg) )
+
+print("run number " )
+print(run_array)
+
+print("enter channel number")
+channel = input()
+channel = int(channel)
+
+print("enter factor")
+factor = input()
+factor = int(factor)
 
 ax = plt.gca()
 
@@ -35,17 +63,11 @@ for i in range(data_over, data_test//2):
 
 result_angle_test_min = result_angle_test[data_over-1]
 
-run_array = [75, 78]
-
 for run in run_array:
-    if run == 83:
-        path_test = f'rawdata/run_000{run}/run000{run}_ch1.txt'
-    else:
-        path_test = f'rawdata/run_000{run}/run000{run}_ch0.txt'
+    path_test = f'rawdata/run_000{run}/run000{run}_ch{channel}.txt'
     
     l_test = np.loadtxt(path_test)
-    #l_test = l_test * 2.51
-    #l_test = l_test/10
+    l_test = l_test * factor
     l_test = l_test.reshape(-1, data_test+2)
     l_test = l_test[:, 2:]
     
