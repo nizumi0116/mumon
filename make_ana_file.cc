@@ -23,9 +23,10 @@ int main(int argc, char *argv[]){
   int channel = -1;
   int type = -1;
   int daqid = -1;
+  double factor = -1;
 
   int p = -1;
-  while((p = getopt(argc, argv, "r:c:t:d:")) != -1)
+  while((p = getopt(argc, argv, "r:c:t:d:f:")) != -1)
     {
       switch(p){
       case 'r':
@@ -40,16 +41,20 @@ int main(int argc, char *argv[]){
       case 'd':
 	daqid = atoi(optarg);
 	break;
+      case 'f':
+	factor = (double) atof(optarg);
+	break;
       }
     }
 
-  if(run == -1 || channel == -1 || type == -1 || daqid == -1)
+  if(run == -1 || channel == -1 || type == -1 || daqid == -1 || factor == -1)
     {
       cout << "!!! usage !!!" << '\n';
       cout << "-r : input a run number" << '\n';
       cout << "-c : input a channel number" << "\n";
       cout << "-t : CT = 0, Si = 1, EMT = 2" << "\n";
       cout << "-d : input a ID for daqpc (1, 2, 3)" << "\n";
+      cout << "-f : enter factor\n";
       exit(0);
     }
   
@@ -136,12 +141,13 @@ int main(int argc, char *argv[]){
 
       for(int i = 0; i < startbin; i++){
         fin >> dummy;
+	dummy = dummy * factor;
 	array[i] = dummy;
       }      
 
       for(int i = startbin; i < endbin; i++){  //where signal is
 	fin >> value;
-	
+	value = value * factor;
 	array[i] = value;
 
 	if(type == 0  || type == 2){
@@ -159,7 +165,7 @@ int main(int argc, char *argv[]){
       
       for(int i = pedbin; i < data; i++){
 	fin >> value;
-	
+	value = value * factor;
 	array[i] = value;
 	pedeHist->Fill(value);
  

@@ -25,9 +25,10 @@ int main(int argc, char *argv[]){
   int runend = -1;
   int daqid = -1;
   int chnum[nch] = {-1, -1, -1};
+  double factor[nch] = {-1., -1., -1.};
 
   int c = -1;
-  while((c = getopt(argc, argv, "s:e:d:x:y:z:")) != -1)
+  while((c = getopt(argc, argv, "s:e:d:a:b:c:x:y:z:")) != -1)
     {
       switch(c){
       case 's':
@@ -36,17 +37,26 @@ int main(int argc, char *argv[]){
       case 'x':
 	chnum[0] = atoi(optarg);
 	break;
+      case 'a':
+	factor[0] = (double) atof(optarg);
+	break;
       case 'e':
 	runend = atoi(optarg);
 	break;
       case 'y':
 	chnum[1] = atoi(optarg);
 	break;
+      case 'b':
+	factor[1] = (double) atof(optarg);
+	break;
       case 'd':
 	daqid = atoi(optarg);
 	break;
       case 'z':
 	chnum[2] = atoi(optarg);
+	break;
+      case 'c':
+	factor[2] = (double) atof(optarg);
 	break;
       }
     }
@@ -60,6 +70,9 @@ int main(int argc, char *argv[]){
       cout << "-x: CT channel number" << '\n';
       cout << "-y: Si channel number" << '\n';
       cout << "-z: ref Si channel number" << '\n';
+      cout << "-a: CT factor" << '\n';
+      cout << "-b: Si factor" << '\n';
+      cout << "-c: EMT factor" << '\n';
       exit(0);
     }
 
@@ -163,11 +176,13 @@ int main(int argc, char *argv[]){
 	    
 	    for(int i = 0; i < startbin; i++){
 	      fin[ich] >> dummy;
+	      dummy = dummy * factor[ich];
 	      array[ich][i] = dummy;
 	    }
 	    
 	    for(int i = startbin; i < endbin; i++){  //where signal is
 	      fin[ich] >> value;
+	      value = value * factor[ich];
 	      array[ich][i] = value;	      
 
 	      if(ich == 0 || ich == 2){
@@ -188,6 +203,7 @@ int main(int argc, char *argv[]){
 	    
 	    for(int i = endbin; i < data; i++){
 	      fin[ich] >> value;
+	      value = value * factor[ich];
 	      array[ich][i] = value;
 	      pedeHist->Fill(value);
 	    }
