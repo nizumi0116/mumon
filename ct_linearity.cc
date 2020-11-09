@@ -41,16 +41,17 @@ int main(int argc, char *argv[]){
   double peak[nch];
   double integral[nch];
   int ct_range = 800;
+  int si_range = 100000;
 
   const int nfile = filelist.size();
   TH2D *linearity_plot[nfile];
-  TH2D *linearity_total = new TH2D("linearity_total", "; CT (integral); Si (integral)", ct_range, 0, ct_range, 10000, 0, 100000);
-  TLegend *leg0 = new TLegend(0.7, 0.5, 0.9, 0.6);
+  TH2D *linearity_total = new TH2D("linearity_total", "; Si (integral); input (integral)", si_range/10, 0, si_range, ct_range, 0, ct_range);
+  TLegend *leg0 = new TLegend(0.7, 0.5, 0.9, 0.7);
 
   cout << "total number of files = " << nfile << "\n";
   
   for(int ifile = 0; ifile < nfile; ifile++){
-    linearity_plot[ifile] = new TH2D(Form("linearity_plot_%d", ifile), "; CT (integral); Si (integral)", ct_range, 0, ct_range, 10000, 0, 100000);
+    linearity_plot[ifile] = new TH2D(Form("linearity_plot_%d", ifile), "; input (integral); Si (integral)", si_range/10, 0, si_range, ct_range, 0, ct_range);
     linearity_plot[ifile] -> SetMarkerStyle(8);
     linearity_plot[ifile] -> SetMarkerSize(0.5);
     linearity_plot[ifile] -> SetMarkerColor(ifile + 1);
@@ -69,8 +70,8 @@ int main(int argc, char *argv[]){
       inputtree->GetEntry(ientry);
 
       //if(peak_bin > 680 && peak_bin < 700){ //if necessary
-      linearity_plot[ifile] -> Fill(integral[0], integral[1]);
-      linearity_total -> Fill(integral[0], integral[1]);
+      linearity_plot[ifile] -> Fill(integral[1], integral[0]);
+      linearity_total -> Fill(integral[1], integral[0]);
       //}
     }
     
@@ -78,14 +79,14 @@ int main(int argc, char *argv[]){
 
   TApplication app("app", 0, 0, 0, 0);
 
-  TF1 *func1 = new TF1("func1", "[0]*x+[1]", 0, ct_range);
+  TF1 *func1 = new TF1("func1", "[0]*x+[1]", 0, si_range);
 
   TFile ofn(Form("ct_linearity_%dto%d.root", run_start, run_stop), "RECREATE");
   ofn.cd();
   
   TCanvas *c0 = new TCanvas("c0", "c0", 1000, 600);
-  TCanvas *c1 = new TCanvas("c1", "c1", 1000, 600);
-  c0 -> cd();
+  c0 -> Divide(2, 1);
+  c0 -> cd(1);
   linearity_plot[0] -> Draw("P");
   linearity_plot[0] -> Write();
   for(int ifile = 1; ifile < nfile; ifile++){
@@ -94,21 +95,21 @@ int main(int argc, char *argv[]){
   }
   leg0 -> Draw("same");
 
-  c1 -> cd();
+  c0 -> cd(2);
   linearity_total -> SetMarkerStyle(8);
   linearity_total -> SetMarkerSize(0.5);
   linearity_total -> SetMarkerColor(1);
+  linearity_total -> Fit("func1", "", "", 0, si_range);
   linearity_total -> Draw("P");
-  linearity_total -> Fit("func1", "", "", 0, ct_range);
   linearity_total -> Write();
   
   c0->Update();
-  c1->Update();
-  //app.Run();
 
   ofn.Close();
 
   cout << "\n... Done!!\n";
+
+  app.Run();
   
   return 0;
 }
