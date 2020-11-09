@@ -28,14 +28,11 @@ int main(int argc, char *argv[]){
   double factor[nch] = {-1., -1., -1.};
 
   int c = -1;
-  while((c = getopt(argc, argv, "s:e:d:b:c:x:y:z:")) != -1)
+  while((c = getopt(argc, argv, "s:e:d:b:c:y:z:")) != -1)
     {
       switch(c){
       case 's':
 	runstart = atoi(optarg);
-	break;
-      case 'x':
-	chnum[0] = atoi(optarg);
 	break;
       case 'e':
 	runend = atoi(optarg);
@@ -140,7 +137,7 @@ int main(int argc, char *argv[]){
       
       //input filename
       TString filename[nch];
-      filename[0] = Form("./rawdata/run_000%d/run000%d_ch%d.dat", irun, irun, chnum[0]);
+      filename[0] = Form("./rawdata/run_000%d/run000%d_ch0.dat", irun, irun);
       for(int ich = 1; ich < nch; ich++){
 	filename[ich] = Form("./rawdata/run_000%d/run000%d_ch%i.txt", irun, irun, chnum[ich]);
       }
