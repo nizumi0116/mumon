@@ -12,6 +12,7 @@
 #include "TF1.h"
 #include "TString.h"
 #include "TTree.h"
+#include "TApplication.h"
 
 #include "qualitycheck.h"
 
@@ -19,6 +20,8 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 
+  TApplication app("app", 0, 0, 0, 0);
+  
   int run = -1;
   int channel = -1;
   int type = -1;
@@ -66,7 +69,7 @@ int main(int argc, char *argv[]){
  
   //const int data = 1024; //number of samples
   const int data = 2050; //number of samples //Si array = 2049
-  int range;
+  int range = 210000;
 
   int num = 0;
   int entry = 0;
@@ -79,7 +82,7 @@ int main(int argc, char *argv[]){
 
   //for pedestal calculation
   double pedestal;
-  TF1 *func;
+  TF1 *f;
   double sigma, rms;
  
   //for charge calculation
@@ -116,50 +119,59 @@ int main(int argc, char *argv[]){
     filename = Form("./process/run_000%d/run000%d_ch%d.dat", run, run, channel);
   }
   else{
-  //filename = Form("./process/position/%dmv_min_calc.txt", run);
     filename = Form("./rawdata/run_000%d/run000%d_ch%d.txt", run, run, channel);
-  //filename = Form("/home/nizumi/MUMON/profile/run000%d/run000%d_ch16.txt", run, run);
   }
   
   ifstream fin;
 
   fin.open(filename);
 
+  TH1D *pedeHist;
+  
     //for ( int itest = 0; itest < 5; itest++ ) {
 
-  while ( ! fin.eof() ) 
-    {
+  while ( ! fin.eof() ) //test 
+  { 
 	//calculate the width of the waveform
       
       double dummy = 0; 
       double value = 0;
       double min = 21000;
-      double max = 0; 
+      double max = 0;
 
+      int range_start = 0;
+      int range_stop = 0;
+
+      if(type == 0){
+	pedeHist = new TH1D(Form("h_%d", num), "pedestal", 2000, -1000, 1000);
+      }
+
+      if(type != 0){
+	pedeHist = new TH1D(Form("h_%d", num), "pedestal", 2000, 1000 * factor, 15000 * factor);
+      }
+	
       if(type == 1 || type == 2){
 	for(int i = 0; i < 2; i++){
 	  fin >> dummy;
 	}
       }
-            
+      
       for(int i = 0; i < startbin; i++){
         fin >> dummy;
 	dummy = dummy * factor;
-	if(i == 0){
-	  range = dummy;
-	}
 	array[i] = dummy;
-      }      
 
-      TH1D* pedeHist = new TH1D(Form("h_%d", num), "pedestal", 2000, range - range * 10 , range + range * 10);
-      func = new TF1("func", "gaus" , range - 100000, range + 100000);
-      func -> SetParameter(0, range);
-      
+	if(type != 0){
+	  pedeHist->Fill(dummy);
+	}
+	
+      }
+	
       for(int i = startbin; i < endbin; i++){  //where signal is
 	fin >> value;
 	value = value * factor;
 	array[i] = value;
-
+	
 	if(type == 0  || type == 2){
 	  if(value < min){
 	    min = value;
@@ -171,28 +183,47 @@ int main(int argc, char *argv[]){
 	  max = value;
 	  peak_bin = i;	  
 	}
+	
       }
       
       for(int i = pedbin; i < data; i++){
 	fin >> value;
 	value = value * factor;
 	array[i] = value;
-	pedeHist->Fill(value);
- 
+
+	if(type == 0){
+	  pedeHist->Fill(value);
+	}
+	
       }
 
-      if(pedeHist->Fit("func", "Q") == -1)
+      if(type == 0){
+	range_start = -100;
+	range_stop = 100;
+      }
+      
+      if(type != 0){
+	range_start = 1000 * factor;
+	range_stop = 15000 * factor;
+      }
+      
+      if(pedeHist->Fit("gaus", "Q", "", range_start, range_stop) == -1)
 	{
 	  delete pedeHist;
 	  cout << "entry " << num << '\n';
 	  cout << "Fit failed. This event is skipped." << '\n';
-	  continue;
+	  continue; //test
 	}
+      
 
-      pedestal = func->GetParameter(1);
-      sigma = func->GetParameter(2);
-      delete pedeHist;
-      delete func;
+      f = pedeHist -> GetFunction("gaus");
+      pedestal = f ->GetParameter(1);
+      sigma = f -> GetParameter(2);
+      delete pedeHist; //test
+
+      ///pedeHist -> Draw(); // test
+      //app.Run(); //test
+
       
       if(type == 0 || type == 2){
 	peak = abs(min - pedestal);
@@ -201,7 +232,17 @@ int main(int argc, char *argv[]){
 	peak = abs(max - pedestal);
       }
       rms = sigma;          
-
+  
+      /*
+      if(!pedcheck(pedestal))
+	{
+	  pedestal = -1;
+	  peak = -1;
+	  integral = -1;
+	  rms = -1;
+	}
+      */
+      
       entry = num;
       num = num + 1;
       
@@ -256,7 +297,7 @@ int main(int argc, char *argv[]){
 
 	}
 	
-      }//loop over i
+	}//loop over i //test
       
       if(num%100==0) cout << "processing : " << num << '\n';
       tree->Fill();
@@ -268,5 +309,6 @@ int main(int argc, char *argv[]){
   fout->Close();
   
   cout << "done!" << '\n';
+  
 }
 
