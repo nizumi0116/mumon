@@ -25,8 +25,10 @@ int main(int argc, char *argv[]){
   for(int i = 1; i < argc; i++){
     cout << "analyze run " << atoi(argv[i]) << "\n";
     runnum.push_back(atoi(argv[i]));
-    filelist_ct.push_back(Form("./process/run_%05d/run_%05d.root", atoi(argv[i]), atoi(argv[i]) ));
-    filelist_si.push_back(Form("./process/run_%05d/run_%05d.root", atoi(argv[i]), atoi(argv[i]) ));
+    filelist_ct.push_back("./process/run_00014/run00014_ch1.root");
+    filelist_si.push_back("./process/run_00014/run00014_ch3.root");
+    //filelist_ct.push_back(Form("./process/run_%05d/run%05d_ch1.root", atoi(argv[i]), atoi(argv[i]) ));
+    //filelist_si.push_back(Form("./process/run_%05d/run%05d_ch3.root", atoi(argv[i]), atoi(argv[i]) ));
   }
 
   int run_start = 0;
@@ -40,9 +42,9 @@ int main(int argc, char *argv[]){
   int entry, nentry;
   double peak;
   double integral_ct, integral_si;
-  int ct_range = 800;
-  int si_range = 100000;
-  int charge_range = 10;
+  int ct_range = 10000;
+  int si_range = 200000000;
+  double charge_range = 0.1;
   double charge; //nC
 
   const int nfile = filelist_ct.size();
@@ -53,8 +55,8 @@ int main(int argc, char *argv[]){
   cout << "total number of files = " << nfile << "\n";
   
   for(int ifile = 0; ifile < nfile; ifile++){
-    linearity_plot[ifile] = new TH2D(Form("linearity_plot_%d", ifile), "; Si (integral); input (integral)", si_range/10, 0, si_range, ct_range, 0, ct_range);
-    charge_hist[ifile] = new TH2D(Form("charge_hist_%d", ifile), "; charge [nC]; Si (integral)", charge_range * 1000, 0, charge_range, si_range/10, 0, si_range);
+    linearity_plot[ifile] = new TH2D(Form("linearity_plot_%d", ifile), "; Si (integral); input (integral)", 1000, 0, si_range, 1000, 0, ct_range);
+    charge_hist[ifile] = new TH2D(Form("charge_hist_%d", ifile), "; charge [nC]; Si (integral)",  1000, 0, charge_range, 1000, 0, si_range);
     linearity_plot[ifile] -> SetMarkerStyle(8);
     linearity_plot[ifile] -> SetMarkerSize(0.5);
     linearity_plot[ifile] -> SetMarkerColor(ifile + 1);
@@ -115,7 +117,7 @@ int main(int argc, char *argv[]){
 
   c0 -> cd(2);
   
-  charge_hist[0] -> Fit("pol1");
+  charge_hist[0] -> Fit("pol1", "", "", 0.010, 0.015);
   f1 = charge_hist[0] -> GetFunction("pol1");
   charge_hist[0] -> Draw("P");
   charge_hist[0] -> Write();
