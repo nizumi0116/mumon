@@ -18,8 +18,12 @@ int main(int argc, char *argv[]){
   //////////////////////////
   //enter this parameter//// 
   //////////////////////////
-  double efficiency = 0.83; //EMT
+  //double efficiency = 0.83; //EMT
 
+  double efficiency;
+  cout << "enter efficiency \n";
+  cin >> efficiency;
+  
   TString high_run = "./high_intensity_si.dat";
   TString low_run = "./low_intensity_si.dat";
 
