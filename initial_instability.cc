@@ -22,11 +22,11 @@ int main(int argc, char *argv[]){
   vector<TString> filelist;
 
   TLine l1;
-  double ratio_max = 200;
-  double ratio_max_si = 10;
+  double ratio_max = 100; // EMT/CT
+  double ratio_max_si = 2; // EMT/Si
 
   if (argc == 1){
-    cout << "Error! Put the run numbers.";
+    cout << "Error! Put the run numbers.\n";
     return 0;
   }
 
@@ -54,9 +54,9 @@ int main(int argc, char *argv[]){
 
   const int nfile = filelist.size();
   TH2D *history_plot[3];
-  history_plot[0] = new TH2D("history_plot0", "; amount of irradiation [# of e / 10^11]; EMT/CT (integral)", 2000, 0, 200, 10000, 0, ratio_max);
-  history_plot[1] = new TH2D("history_plot1", "; amount of irradiation [days in J-PARC @500 kW]; EMT/CT (integral)", 1500, 0, 15, 10000, 0, ratio_max);
-  history_plot[2] = new TH2D("history_plot2", "; amount of irradiation [days in J-PARC @500 kW]; EMT/CT (integral)", 1500, 0, 15, 10000, 0, ratio_max);
+  history_plot[0] = new TH2D("history_plot0", "; amount of irradiation [# of e / 10^11]; EMT/input (integral)", 2000, 0, 200, 10000, 0, ratio_max);
+  history_plot[1] = new TH2D("history_plot1", "; amount of irradiation [days in J-PARC @500 kW]; EMT/input (integral)", 1500, 0, 15, 10000, 0, ratio_max);
+  history_plot[2] = new TH2D("history_plot2", "; amount of irradiation [days in J-PARC @500 kW]; EMT/input (integral)", 1500, 0, 15, 10000, 0, ratio_max);
   TH2D *history_plot_si[3];
   history_plot_si[0] = new TH2D("history_plot_si0", "; amount of irradiation [# of e / 10^11]; EMT/Si (integral)", 2000, 0, 200, 10000, 0, ratio_max_si);
   history_plot_si[1] = new TH2D("history_plot_si1", "; amount of irradiation [days in J-PARC @500 kW]; EMT/Si (integral)", 1500, 0, 15, 10000, 0, ratio_max_si);
@@ -89,7 +89,6 @@ int main(int argc, char *argv[]){
       h0 -> Fill(integral[2]/integral[0]);
       //history_plot[0] -> Fill(irradiation, integral[2]/integral[0]);
       history_plot[1] -> Fill(days, integral[2]/integral[0]);
-      cout << "days " << days  << " " << integral[2]/integral[0] << "\n"; 
 
       h0_si -> Fill(integral[2]/integral[1]);
       //history_plot_si[0] -> Fill(irradiation, integral[2]/integral[1]);
@@ -113,7 +112,8 @@ int main(int argc, char *argv[]){
   ofn.cd();
   
   TCanvas *c0 = new TCanvas("c0", "c0", 1000, 600);
-  c0 -> cd();
+  c0 -> Divide(2, 2);
+  c0 -> cd(1);
   //history_plot[0] -> Draw("colz");
   history_plot[2] -> SetMarkerStyle(4);
   history_plot[2] -> Draw("P");
@@ -122,8 +122,7 @@ int main(int argc, char *argv[]){
   }
   history_plot[2] -> Write();
   
-  TCanvas *c1 = new TCanvas("c1", "c1", 1000, 600);
-  c1 -> cd();
+  c0 -> cd(2);
   //history_plot_si[0] -> Draw("colz");
   history_plot_si[2] -> SetMarkerStyle(4);
   history_plot_si[2] -> Draw("P");
@@ -132,27 +131,25 @@ int main(int argc, char *argv[]){
   }
   history_plot_si[2] -> Write();
 
-  TCanvas *c2 = new TCanvas("c2", "c2", 1000, 600);
-  c2 -> cd();
+  c0 -> cd(3);
   history_plot[1] -> Draw("colz");
   for (unsigned int i = 0; i < switching.size(); i++){
     l1.DrawLine(switching[i], 0, switching[i], ratio_max);
   }
   history_plot[1] -> Write();
   
-  TCanvas *c3 = new TCanvas("c3", "c3", 1000, 600);
-  c3 -> cd();
+  c0 -> cd(4);
   history_plot_si[1] -> Draw("colz");
   for (unsigned int i = 0; i < switching.size(); i++){
     l1.DrawLine(switching[i], 0, switching[i], ratio_max_si);
   }
   history_plot_si[1] -> Write();
 
-  app.Run();
-
   ofn.Close();
 
   cout << "\n... Done!!\n";
+
+  app.Run();
   
   return 0;
   
